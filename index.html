@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>GalaxyAI — AI Tools Directory</title>
+<link rel="stylesheet" href="style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+<!-- NAV -->
+    <nav>
+  <div class="nav-inner">
+    <div class="logo">
+      <div class="logo-icon">⬡</div>
+      GalaxyAI
+      <span class="logo-sub">AI TOOLS</span>
+    </div>
+    <div class="nav-search">
+      <span class="nav-search-icon">🔍</span>
+      <input type="text" id="search-input" placeholder="Search tools…" oninput="render()"/>
+    </div>
+  </div>
+</nav>
+ 
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge"><span class="live-dot"></span> Curated AI Directory</div>
+    <h1>Find the Right <em>AI Tool</em> for Every Task</h1>
+    <p class="hero-sub">Browse 30+ real AI tools by category. Click any tool to open it — optionally pre-fill your prompt first.</p>
+  </div>
+</section>
+ 
+<!-- AI RECOMMENDER -->
+<section class="recommender">
+  <div class="rec-inner">
+    <div class="rec-top">
+      <div class="rec-text">
+        <div class="rec-eyebrow">✦ Smart Recommender</div>
+        <div class="rec-title">Tell us what you need —<br>we'll find the best AI tool</div>
+        <div class="rec-sub">Type your goal in plain English. Our recommender matches it to the perfect tool instantly.</div>
+      </div>
+      <div class="rec-input-wrap">
+        <div class="rec-input-box">
+          <input class="rec-input" id="rec-input" placeholder="e.g. I want to make a video from my blog post…" onkeydown="if(event.key==='Enter') recommend()"/>
+          <button class="rec-btn" onclick="recommend()">Find Tools ✦</button>
+        </div>
+        <div class="rec-chips">
+          <span class="rec-chip" onclick="quickRec('generate an image from text')">🖼 Image from text</span>
+          <span class="rec-chip" onclick="quickRec('create a presentation automatically')">📊 Auto presentation</span>
+          <span class="rec-chip" onclick="quickRec('make a video from my script')">🎬 Script to video</span>
+          <span class="rec-chip" onclick="quickRec('check my symptoms and health')">🩺 Health advice</span>
+          <span class="rec-chip" onclick="quickRec('plan my travel itinerary')">✈️ Trip planner</span>
+          <span class="rec-chip" onclick="quickRec('help me write and review code')">💻 Code help</span>
+        </div>
+      </div>
+    </div>
+    <!-- Results -->
+    <div class="rec-results" id="rec-results">
+      <div class="rec-result-head">
+        <div class="rec-result-label">Best tools for: <span id="rec-query-label"></span></div>
+        <button class="rec-clear" onclick="clearRec()">✕ Clear</button>
+      </div>
+      <div class="rec-cards" id="rec-cards"></div>
+    </div>
+  </div>
+</section>
+ 
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat"><strong id="s-tools">0</strong> Total Tools</div>
+  <div class="stat-sep"></div>
+  <div class="stat"><strong id="s-cats">6</strong> Categories</div>
+  <div class="stat-sep"></div>
+  <div class="stat"><strong id="s-free">0</strong> Free Tools</div>
+  <div class="stat-sep"></div>
+  <div class="stat"><strong id="s-clicks">0</strong> Times Opened</div>
+</div>
+ 
+<!-- CATEGORY TABS -->
+<div class="cat-tabs" id="cat-tabs"></div>
+ 
+<!-- TOOLS GRID -->
+<div class="tools-wrap">
+  <div class="section-heading">
+    <span id="grid-label">All Tools</span>
+    <span style="font-size:13px;font-weight:500;color:var(--muted)" id="grid-count"></span>
+  </div>
+  <div class="tools-grid" id="tools-grid"></div>
+</div>
+ 
+<!-- PROMPT MODAL -->
+<div class="modal-bg" id="modal-bg" onclick="handleModalBgClick(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div class="modal-tool-icon" id="m-icon"></div>
+      <div>
+        <div class="modal-tool-name" id="m-name"></div>
+        <div class="modal-tool-url" id="m-url"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-label">Your Prompt (optional)</div>
+      <textarea class="modal-textarea" id="m-prompt" placeholder="Type your prompt here, then click Open Tool…&#10;&#10;Example: Generate a realistic photo of a sunset over mountains in cinematic style"></textarea>
+      <div class="modal-suggestions">
+        <div class="modal-sug-label">Quick prompts for this tool:</div>
+        <div id="m-suggestions"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-go" id="m-go-btn" onclick="openTool()">
+        Open Tool ↗
+      </button>
+      <button class="btn-modal-cancel" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+ 
+<!-- REVIEW MODAL -->
+<div class="rv-modal-bg" id="rv-modal-bg" onclick="handleRvBgClick(event)">
+  <div class="rv-modal">
+    <div class="rv-modal-head">
+      <div class="rv-tool-icon" id="rv-icon"></div>
+      <div>
+        <div class="rv-tool-name" id="rv-tool-name"></div>
+        <div class="rv-tool-sub">Write a Review</div>
+      </div>
+      <button class="rv-close" onclick="closeReviewModal()">✕</button>
+    </div>
+    <div class="rv-body">
+      <div class="rv-section-label">Your Rating</div>
+      <div class="star-picker" id="star-picker">
+        <button class="star-pick" onclick="pickStar(1)">★</button>
+        <button class="star-pick" onclick="pickStar(2)">★</button>
+        <button class="star-pick" onclick="pickStar(3)">★</button>
+        <button class="star-pick" onclick="pickStar(4)">★</button>
+        <button class="star-pick" onclick="pickStar(5)">★</button>
+      </div>
+      <div class="rating-labels"><span>Poor</span><span>Okay</span><span>Good</span><span>Great</span><span>Excellent</span></div>
+      <div class="rv-section-label">Your Details</div>
+      <div class="rv-name-row">
+        <input class="rv-input" id="rv-name" placeholder="Your name (e.g. Arjun)" maxlength="40"/>
+        <input class="rv-input" id="rv-role" placeholder="Role (e.g. Designer)" maxlength="30" style="max-width:150px"/>
+      </div>
+      <textarea class="rv-textarea" id="rv-text" placeholder="Share your experience… What did you love? What could be better?" maxlength="400"></textarea>
+      <div class="rv-foot">
+        <button class="rv-submit" id="rv-submit-btn" onclick="submitReview()">Submit Review ✓</button>
+        <button class="rv-cancel" onclick="closeReviewModal()">Cancel</button>
+      </div>
+    </div>
+    <hr class="rv-divider"/>
+    <div class="rv-list-section">
+      <div class="rv-list-head">Community Reviews <span id="rv-list-count"></span></div>
+      <div class="rv-list" id="rv-list"></div>
+    </div>
+  </div>
+</div>
+ 
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script src="script.js"></script>
+<footer class="footer">
+  <div class="footer-container">
+
+    <div class="footer-brand">
+      <h3>GalaxyAI</h3>
+      <p>Discover the best AI tools for productivity, creativity, coding and more.</p>
+    </div>
+
+    <div class="footer-links">
+      <h4>Categories</h4>
+      <ul>
+        <li>Image Generation</li>
+        <li>Text to Video</li>
+        <li>Presentation AI</li>
+        <li>Medical AI</li>
+        <li>Travel Planner</li>
+        <li>Code Assistant</li>
+      </ul>
+    </div>
+
+    <div class="footer-links">
+      <h4>Resources</h4>
+      <ul>
+        <li>About</li>
+        <li>Submit Tool</li>
+        <li>Contact</li>
+        <li>Privacy Policy</li>
+      </ul>
+    </div>
+
+    <div class="footer-social">
+      <h4>Connect us via </h4>
+      <p>Follow for latest AI tools</p>
+      <div class="social-icons">
+
+        <div class="social-icons">
+
+            <a href="https://www.linkedin.com/in/yourprofile" target="_blank">
+            <img src="images/linkedin.png" alt="LinkedIn">
+            </a>
+
+            <a href="https://github.com/yourusername" target="_blank">
+            <img src="images/github.png" alt="GitHub">
+            </a>
+
+            <a href="https://x.com/yourusername" target="_blank">
+            <img src="images/twitter.png" alt="Twitter">
+            </a>
+
+            <a href="https://youtube.com/@yourchannel" target="_blank">
+            <img src="images/youtube.png" alt="YouTube">
+            </a>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    © 2026 GalaxyAI. All Rights Reserved.
+  </div>
+</footer>
+
+</body>
+</html>
